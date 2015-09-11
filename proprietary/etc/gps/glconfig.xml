@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<glgps xmlns="http://www.glpals.com/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.glpals.com/glconfig.xsd" >
+  <!--HAL Confguration  -->
+  <hal
+       PortName="/dev/ttyS2"
+       BaudRate="921600"
+       LogEnabled="false"
+       LogDirectory="/data/gps/glgps" 
+	   LogDirectoryMaxSizeMb ="0"
+       NmeaOutName="/data/gpspipe"
+       CtrlPipe="/data/gps/glgpsctrl"
+       NvStorageDir="/data/gps/"
+       GpslogdPipePath="/data/gps/.gpslogd.pipe"
+       LbsTAC="10103103"
+       Log="JAVA"
+      
+	   CntinFlag="1"
+       GpioNStdbyPath="/sys/class/gpio/gpio23/value"  
+       LbsEnable="true"
+       LbsLocal="false"
+       LbsServer="bcmlbsqa1.broadcom.com"
+       LbsPort="7275"
+       LbsSyncLto="true"
+       HttpSyncLto="true"
+       LtoFileName="lto.dat"
+       LtoDir="/data/gps/"
+       LtoSyncThresholdDays="3"
+       LbsWlanEnable="true"
+       LbsWlScanIntervalSec="4"
+       LbsLog="true"	    
+       LbsWlanEnable="true"
+       TcpConnectionTimeout="20"
+       SuplEnable="true"
+       SuplMsbCapable="true"
+       SuplMsaCapable="true"
+       SuplEcidCapable="false"
+	   SuplCidViaRil="false"
+       SuplUseApn="false"
+       SuplServer="supl.google.com"
+       SuplPort="7276"
+       SuplTlsEnable="false"
+       SuplTlsCertPath="/data/gps/cacertqa1.pem"
+       SuplTlsStopForInvPath="true"
+       SuplSslMethod="TLSv1"
+       SuplSslVerify="peer" 
+       ReAidingType="1"      
+       SuplMinorVersion="0"
+       SuplVersion="1"   	               
+       LbsConfig="RilLearnedDbSizeKb=0+RilDownloadedDbSizeKb=0+WlanLearnedDbSizeKb=0+WlanDownloadedDbSizeKb=64+LbsMode=2"              
+       HulaEnable="true"
+       HulaPowerSave="false"
+       HulaLog="true"      
+/>
+	   
+	
+  <!-- Parameters passed to GlEngine   -->
+  <!--gll
+         LogPriMask="LOG_DEBUG"
+       LogFacMask="LOG_GLLAPI | LOG_NMEA"
+         LogFacMask="LOG_GLLAPI | LOG_DEVIA | LOG_NMEA | LOG_RAWDATA | LOG_DEVMS | LOG_ASIC_IO | LOG_BBTEST | LOG_DEVET | LOG_MESM | LOG_DEVKF | LOG_DEVJG | LOG_DEVMR"
+         FrqPlan="FRQ_PLAN_26MHZ_2PPM" FrqPlan="FRQ_PLAN_10MHZ_2PPM_10MHZ_100PPB" FrqPlan="FRQ_PLAN_10MHZ_2PPM" "FRQ_PLAN_16_8MHZ_2PPM"
+         RfType="GL_RF_BARRACUDA_BRCM" "GL_RF_PALS7" "GL_RF_BARRACUDA" "GL_RF_2075_LN22" "GL_RF_2075_BRCM" "GL_RF_PALS7_BRCM" "GL_RF_BARRACUDA_EXT_LNA"
+         NOTE: "GL_RF_BARRACUDA_EXT_LNA" should be used for BAS
+         LbsEnable="true" LbsLocal="true" LbsServer="bcmlbsqa2.glpals.com" LbsPort="7275" LbsSyncTimeSec="60" LbsSyncLto="true" LbsSyncCells="true"
+ 	 PortName="/dev/ttyAMA1"
+         PortName="null"
+  /-->
+
+  <!-- NOTE: BrcmRFwildBase, BrcmRFclkDiv, anBrcmRFclkRefHz only needed for Broadcom RF front end test chips
+            ( i.e. GL_RF_2075_BRCM and GL_RF_PALS7_BRCM ) -->
+
+  <gll
+       LogPriMask="LOG_DEBUG"
+       LogFacMask="LOG_GLLAPI | LOG_DEVIA | LOG_NMEA | LOG_RAWDATA | LOG_DEVMS | LOG_ASIC_IO | LOG_BBTEST | LOG_DEVET | LOG_MESM | LOG_DEVKF | LOG_DEVJG | LOG_DEVMR | LOG_GLLIO"
+       FrqPlan="FRQ_PLAN_26MHZ_2PPM_13MHZ_300PPB"
+       RfType="GL_RF_4752_BRCM_EXT_LNA"
+	   WarmStandbyTimeout1Seconds="10"
+       WarmStandbyTimeout2Seconds="15"
+       PsfRecoverJobsUponBadTime="true"
+  />
+
+  <!-- List of jobs can be performed by the GPS controller    -->
+
+  <!-- The default job  all parameters are set to default values  -->
+
+  <job Id="normal">
+      <task >
+		<req_pos ValidFixes="10"/>
+      </task>
+   </job>
+
+  <job Id="normal_20s">
+      <task >
+		<req_pos FixCount="20"/>
+      </task>
+   </job>
+
+  <job Id="periodic">
+      <task >
+      </task>
+   </job>
+
+  <job Id="repeated_cold">
+      <task Repeat="20">
+      	<startup IgnoreOsc="true"  IgnoreRomAlm="true"  IgnoreNav="true" IgnorePosition="true" IgnoreRamAlm="true" IgnoreTime="true"/>
+		<req_pos ValidFixes="15"/>
+      </task>
+   </job>
+
+
+    <job Id="cold-single-supl">
+    <task Id="sg_a50_t20">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+      <startup IgnoreTime="true" IgnoreOsc="false" IgnorePosition="true" IgnoreNav="true" IgnoreRamAlm="true" IgnoreRomAlm="true" />
+      <!--req_pos_single AccuracyMask="50" Timeout="20" /-->
+      <req_pos_single AccuracyMask="50" Timeout="20" />
+    </task>
+  </job>
+
+  <!-- Job to test frequency aiding   -->
+    <job Id="freq-aid-test">
+        <task>
+            <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+            <startup IgnoreOsc="true"  />
+            <asst>
+                <freq OffsetPpb="0" UncertaintyPpb="500" />
+            </asst>
+            <req_pos />
+        </task>
+    </job>
+
+    <!-- Job to perform 3GPP moving testing, periodic mode  -->
+  <job Id="sim-cold-auto">
+    <task Id="periodic-eph-tm-clk" Repeat="10">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+      <startup IgnoreOsc="true"  IgnoreRomAlm="true"  IgnoreNav="true" IgnorePosition="false" IgnoreRamAlm="true" IgnoreTime="false"/>
+      <req_pos />
+    </task>
+  </job>
+
+    <!-- Job to perform 3GPP moving testing, periodic mode  -->
+  <job Id="sim-need-bit">
+    <task Id="periodic" Repeat="20">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+      <startup IgnoreRomAlm="true" IgnorePosition="true" IgnoreRamAlm="true"/>
+      <req_pos Period="1000" FixCount="100" ValidFixes="10"/>
+    </task>
+  </job>
+
+    <!-- Job to perform 3GPP moving testing, periodic mode  -->
+    <job Id="sim-bit-wipeoff">
+        <task Id="periodic" Repeat="20">
+          <startup IgnoreRomAlm="true" IgnoreRamAlm="true" IgnoreTime="true"/>
+          <asst>
+            <pos Lat="33.75" Lon="-84.3833333" Alt="300" />
+          </asst>
+          <req_pos />
+        </task>
+    </job>
+
+  <!-- Job to perform 3GPP moving testing, periodic mode  -->
+  <job Id="sim-utc-check">
+    <task Id="periodic" Repeat="20">
+      <startup IgnoreRomAlm="true" IgnoreRamAlm="true" IgnoreTime="true"/>
+      <asst>
+        <pos Lat="33.75" Lon="-84.3833333" Alt="300" />
+      </asst>
+      <req_pos />
+    </task>
+  </job>
+
+  <!-- Job to perform 3GPP testing, sigle shot mode  -->
+  <job Id="sim-cold-single">
+    <task Id="sg_a50_t20" Repeat="10">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+      <startup IgnoreRomAlm="true" IgnoreRamAlm="true" />
+      <asst>
+        <!--pos Lat="-30.0" Lon="-50.0" Alt="50" /-->
+        <!--pos Lat="33.75" Lon="-84.3833" Alt="300" /-->
+        <!--pos Lat="37.0" Lon="-122.0" Alt="50" /-->
+        <!--pos Lat="37.26533652" Lon="-121.94128855" Alt="51.4" /-->
+      </asst>
+      <!--req_pos_single AccuracyMask="50" Timeout="20" /-->
+      <req_pos_single AccuracyMask="50" Timeout="20" />
+    </task>
+  </job>
+
+    <!-- Job to perform 3GPP testing, sigle shot mode  -->
+    <job Id="sim-single">
+        <task Id="sg_a50_t20" Repeat="10">
+            <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+            <startup IgnoreRomAlm="true" IgnoreRamAlm="true" IgnoreOsc="true"/>
+            <asst>
+                <!--pos Lat="33.7691" Lon="-84.4062" Alt="0" /-->
+                <!--pos Lat="-30.0" Lon="-50.0" Alt="50" /-->
+                <pos Lat="33.75" Lon="-84.3833333" Alt="300" />
+                <!--pos Lat="37.0" Lon="-122.0" Alt="50" /-->
+                <!--pos Lat="37.26533652" Lon="-121.94128855" Alt="51.4" /-->
+            </asst>
+            <req_asst  />
+            <req_pos_single AccuracyMask="50" Timeout="23" />
+        </task>
+    </job>
+
+  <!-- Job to perform 3GPP testing, sigle shot mode  -->
+  <job Id="sim-cold-single_foff">
+    <task Id="sg_a50_t20" Repeat="10">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+      <startup IgnoreRomAlm="true" IgnoreRamAlm="true" IgnoreOsc="true" />
+      <asst>
+        <!--pos Lat="-30.0" Lon="-50.0" Alt="50" /-->
+        <!--pos Lat="33.75" Lon="-84.3833" Alt="300" /-->
+        <!--pos Lat="37.0" Lon="-122.0" Alt="50" /-->
+        <!--pos Lat="37.26533652" Lon="-121.94128855" Alt="51.4" /-->
+      </asst>
+      <!--req_pos_single AccuracyMask="50" Timeout="20" /-->
+      <req_pos_single AccuracyMask="50" Timeout="20" />
+    </task>
+  </job>
+
+  <!-- Job to perform 3GPP moving testing, periodic mode  -->
+  <job Id="sim-ass-auto">
+    <task Id="periodic" Repeat="10">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+        <startup IgnoreRomAlm="true" IgnoreRamAlm="true" IgnoreTime="true" IgnoreOsc="true"/>
+        <asst>
+        <pos Lat="33.75000" Lon="-84.38330" Alt="300" />
+        <!--pos Lat="33.76910" Lon="-84.40620" Alt="300" /-->
+        <!--pos Lat="37.0" Lon="-122.0" Alt="50" /-->
+        <!--pos Lat="37.26533652" Lon="-121.94128855" Alt="51.4" /-->
+      </asst>
+      <req_pos />
+    </task>
+  </job>
+
+  <!-- Job to perform 3GPP moving testing, periodic mode  -->
+  <job Id="sim-low-tow">
+    <task Id="periodic" Repeat="10">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+      <startup IgnoreRomAlm="true" IgnoreRamAlm="true" RtcErrorMs="-2000"/>
+      <asst>
+        <pos Lat="33.75000" Lon="-84.38330" Alt="300" />
+        <!--pos Lat="33.76910" Lon="-84.40620" Alt="300" /-->
+        <!--pos Lat="37.0" Lon="-122.0" Alt="50" /-->
+        <!--pos Lat="37.26533652" Lon="-121.94128855" Alt="51.4" /-->
+      </asst>
+      <req_pos />
+    </task>
+  </job>
+
+    <!-- Job to perform 3GPP moving testing, periodic mode  -->
+    <job Id="sim-syncin-test">
+        <task Id="periodic" Repeat="10">
+            <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+            <startup IgnoreRomAlm="true" IgnoreRamAlm="true" IgnoreTime="true"/>
+            <asst>
+                <!--pos Lat="-30.0" Lon="-50.0" Alt="50" /-->
+                <!--pos Lat="33.75" Lon="-84.3833333" Alt="300" /-->
+                <!--pos Lat="37.0" Lon="-122.0" Alt="50" /-->
+                <pos Lat="37.26533652" Lon="-121.94128855" Alt="51.4" />
+            </asst>
+            <req_pos />
+        </task>
+    </job>
+
+  <!-- Job to perform single shot testing   -->
+  <job Id="single-shot">
+    <task Id="shot" Repeat="50">
+      <startup IgnoreRomAlm="true" IgnoreRamAlm="true" IgnoreTime="false" IgnoreOsc="true"/>
+      <asst>
+        <pos Lat="33.76910" Lon="-84.40620" Alt="300" />
+        <!--pos Lat="33.75000" Lon="-84.38330" Alt="300" /-->
+      </asst>
+      <!-- Ask GLL what assitance data is required  -->
+      <req_asst  />
+      <req_pos_single AccuracyMask="50" Timeout="60" />
+    </task>
+  </job>
+
+  <!-- Job  to perform CNTIN  testing   -->
+  <job Id="cntin-test">
+    <!-- This task requests the CNTIN to be performed   -->
+    <task Id="cntin" Repeat="10">
+      <!-- Instructs GLL to ignore frequency read from NVSTORAGE -->
+      <startup IgnoreOsc="true"  />
+      <req_cntin />
+    </task>
+  </job>
+
+  <!-- Job  to perform autonomus mode testing   -->
+  <job Id="auton-start">
+    <task Id="factory" Repeat="15">
+      <!-- Instructs GLL to ignore all elements stored in NVRAM listed below -->
+      <startup IgnoreTime="true" IgnoreOsc="true" IgnorePosition="true" IgnoreNav="true" IgnoreRamAlm="false" IgnoreRomAlm="true" />
+      <features sbas_priority="disabled"/>
+      <!-- Do this test in periodic mode  -->
+      <!-- Stop if we got either 100 any fixes or one valid  -->
+      <req_pos Period="1000" FixCount="500" ValidFixes="500" />
+    </task>
+  </job>
+
+    <!-- Job to perform factory testing with the Simulator output set to -130 dBm  -->
+    <job Id="factory-high-snr">
+        <task Id="test" Repeat="1">
+            <!-- Instructs GLL to ignore all elements stored in NVRAM listed below -->
+            <startup IgnoreOsc="true" IgnoreTime="true" IgnorePosition="true" IgnoreNav="true" IgnoreRamAlm="true" IgnoreRomAlm="true" />
+            <req_ftest Prn="1" FactoryTestMode="GL_FACT_TEST_CONT"  FactoryTestItems="GL_FACT_TEST_WER" AveragingIntervalSec="10" DurationSec="60" />
+        </task>
+    </job>
+
+    <!-- Job to perform factory testing with the Simulator output set to -150 dBm  -->
+    <job Id="factory-low-snr">
+        <task Id="test" Repeat="1">
+            <startup IgnoreOsc="false" IgnoreTime="true" IgnorePosition="true" IgnoreNav="true" IgnoreRamAlm="true" IgnoreRomAlm="true"/>
+            <req_ftest Prn="9" FactoryTestMode="GL_FACT_TEST_CONT"  FactoryTestItems="GL_FACT_TEST_FRQ" AveragingIntervalSec="10" DurationSec="60" />
+        </task>
+    </job>
+
+    <!-- Job  to perform RF false alarm test  -->
+    <job Id="false-alarm-test">
+        <task >
+            <startup IgnoreTime="true" IgnoreOsc="true" IgnorePosition="true" IgnoreNav="true" IgnoreRamAlm="true" IgnoreRomAlm="true" />
+            <features EnableFalseAlarms="true"/>
+            <req_pos />
+        </task>
+    </job>
+
+    <!-- Job  to perform platform testing   -->
+    <job Id="platform-test">
+        <task Id="factory" >
+            <!-- Instructs GLL to ignore all elements stored in NVRAM listed below -->
+            <startup IgnoreTime="true" IgnoreOsc="true" IgnorePosition="true" IgnoreNav="true" IgnoreRamAlm="true" IgnoreRomAlm="true" />
+            <!-- Do this test in periodic mode  -->
+            <!-- Stop if we got either 100 any fixes or one valid  -->
+            <req_pos Period="1000" FixCount="600" ValidFixes="1" />
+
+        </task>
+        <task Id="warm" Repeat="1">
+            <!-- Instructs GLL to ignore all elements stored in NVRAM listed below -->
+            <startup IgnoreNav="true" />
+            <!-- Do this test in periodic mode  -->
+            <!-- Stop if we got either 100 any fixes or one valid  -->
+            <req_pos Period="1000" FixCount="600" ValidFixes="600"/>
+        </task>
+    </job>
+
+  <job Id="perso">
+    <task Repeat="1">
+        <startup IgnoreRomAlm="true"  />
+        <features  EnableLowPower="true"/>
+        <req_pos />
+    </task>
+  </job>
+
+</glgps>
