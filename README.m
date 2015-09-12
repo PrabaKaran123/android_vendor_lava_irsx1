@@ -1,1 +1,1 @@
-#vendor_lava_x1
+#vendor_lava_irsx1
